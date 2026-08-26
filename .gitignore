@@ -1,0 +1,6 @@
+config/key.json
+__pycache__/
+*.py[cod]
+.venv/
+datos_generados/
+.DS_Store
