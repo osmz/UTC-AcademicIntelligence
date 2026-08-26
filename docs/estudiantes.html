@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Información de Estudiantes - UTC Faculty</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="app-page">
+  <main class="container student-container">
+    <header class="student-header">
+      <div>
+        <span class="eyebrow">Seguimiento académico</span>
+        <h1>Información de estudiantes</h1>
+        <p class="subtitle">Consulta integral de matrícula, asignaturas y rendimiento</p>
+      </div>
+      <div class="logout-section">
+        <span class="usuario-info">Sesión: <strong id="usuarioSpan">—</strong></span>
+        <button id="btnVolverModulos" class="btn-modules" type="button">Volver a módulos</button>
+        <button id="btnLogout" class="btn-logout">Cerrar Sesión</button>
+      </div>
+    </header>
+
+    <section class="student-search" aria-label="Buscar estudiante">
+      <div class="search-copy">
+        <span class="section-label">Directorio académico</span>
+        <h2>Encuentra un estudiante</h2>
+        <p>Combina filtros para ubicar rápidamente un perfil.</p>
+      </div>
+      <div class="search-controls">
+        <label>Nombre<input id="busquedaEstudiante" type="search" placeholder="Escribe el nombre del estudiante" autocomplete="off"></label>
+        <label>Documento<input id="filtroDocumento" type="search" placeholder="Escribe el número de documento" autocomplete="off"></label>
+        <label>Correo institucional<input id="filtroCorreo" type="search" placeholder="Escribe el correo institucional" autocomplete="off"></label>
+        <label>Semestre<select id="filtroSemestre"><option value="">Todos los semestres</option></select></label>
+        <label>Nivel<select id="filtroNivel"><option value="">Todos los niveles</option></select></label>
+        <label>Estado<select id="filtroEstado"><option value="">Todos los estados</option></select></label>
+        <label>Asignatura<select id="filtroAsignatura"><option value="">Todas las asignaturas</option></select></label>
+        <label>Docente<select id="filtroDocente"><option value="">Todos los docentes</option></select></label>
+        <div class="filter-actions">
+          <button id="btnBuscarEstudiante" type="button">Buscar</button>
+          <button id="btnLimpiarEstudiante" class="btn-limpiar" type="button">Limpiar</button>
+        </div>
+      </div>
+    </section>
+
+    <div id="estadoDatosEstudiante" class="data-notice" hidden></div>
+    <div id="errorEstudiante" class="error"></div>
+    <section id="listaEstudiantes" class="student-results" hidden>
+      <div class="section-heading"><span class="section-label">Resultados</span><h2>Selecciona un perfil</h2><p id="contadorEstudiantes"></p></div>
+      <div id="itemsEstudiantes" class="student-result-grid"></div>
+    </section>
+
+    <section id="perfilEstudiante" hidden>
+      <div id="identidadEstudiante" class="student-identity"></div>
+      <div id="metricasEstudiante" class="metric-grid"></div>
+      <div class="student-layout">
+        <section class="data-panel">
+          <div class="section-heading"><span class="section-label">Contexto</span><h2>Información académica</h2></div>
+          <div id="contextoEstudiante" class="info-grid"></div>
+        </section>
+        <section class="data-panel">
+          <div class="section-heading"><span class="section-label">Historial</span><h2>Semestres y grupos</h2></div>
+          <div id="historialEstudiante" class="timeline-list"></div>
+        </section>
+      </div>
+      <section class="data-panel">
+        <div class="section-heading"><span class="section-label">Rendimiento</span><h2>Asignaturas y notas</h2></div>
+        <div class="table-wrap"><table><thead><tr><th>Asignatura</th><th>Docente</th><th>Semestre</th><th>Periodo</th><th>Nota</th><th>Estado</th></tr></thead><tbody id="notasEstudiante"></tbody></table></div>
+      </section>
+      <section class="data-panel">
+        <div class="section-heading"><span class="section-label">Seguimiento</span><h2>Observaciones</h2></div>
+        <div id="observacionesEstudiante" class="observation-list"></div>
+      </section>
+    </section>
+  </main>
+  <footer><div class="logo-text">Universidad Autónoma de Manizales</div><p>&copy; 2026 UAM. Todos los derechos reservados.</p></footer>
+  <script src="js/estudiantes.js"></script>
+</body>
+</html>

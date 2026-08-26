@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Acceso - UTC Faculty</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="login-page">
+  <div class="login-container">
+    <div class="login-card">
+      <div class="login-header">
+        <h1>🎓 UTC Faculty</h1>
+        <p class="subtitle">Universidad Autónoma de Manizales</p>
+      </div>
+
+      <form id="loginForm" class="login-form">
+        <div class="form-group">
+          <label for="usuario">Usuario:</label>
+          <input 
+            type="text" 
+            id="usuario" 
+            name="usuario" 
+            placeholder="Ingresa tu usuario"
+            required
+            autocomplete="username"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="clave">Contraseña:</label>
+          <input 
+            type="password" 
+            id="clave" 
+            name="clave" 
+            placeholder="Ingresa tu contraseña"
+            required
+            autocomplete="current-password"
+          >
+        </div>
+
+        <button type="submit" class="btn-login">Iniciar Sesión</button>
+      </form>
+
+      <div class="error" id="loginError"></div>
+      <div class="cargando" id="loginCargando">⏳ Validando credenciales...</div>
+
+      <div class="login-footer">
+        <p>Para acceder, solicita tus credenciales a Coordinación</p>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="logo-text">Universidad Autónoma de Manizales</div>
+    <p>&copy; 2026 UAM. Todos los derechos reservados.</p>
+  </footer>
+
+  <script src="js/api.js"></script>
+  <script src="js/login.js"></script>
+</body>
+</html>
+

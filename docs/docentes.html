@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Información de Docentes - Universidad Autónoma de Manizales</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="container">
+    <div class="header-with-logout">
+      <div>
+        <h1>📋 Información de Docentes</h1>
+        <p class="subtitle">Universidad Autónoma de Manizales</p>
+      </div>
+      <div class="logout-section">
+        <span class="usuario-info">Sesión: <strong id="usuarioSpan">—</strong></span>
+        <button id="btnVolverModulos" class="btn-modules" type="button">Volver a módulos</button>
+        <button id="btnLogout" class="btn-logout">Cerrar Sesión</button>
+      </div>
+    </div>
+    
+    <div class="search-group">
+      <input 
+        type="text" 
+        id="busqueda" 
+        placeholder="Buscar por nombre, cédula o departamento..." 
+        autocomplete="off"
+      >
+      <button id="btnBuscar">Buscar</button>
+      <button id="btnLimpiar" class="btn-limpiar">Limpiar</button>
+    </div>
+
+    <div class="error" id="error"></div>
+
+    <!-- SECCIÓN DE RESULTADOS MÚLTIPLES -->
+    <div id="resultadosMultiplesContainer" style="display: none;">
+      <h3 style="color: #0069A3; margin-bottom: 15px;">Se encontraron múltiples docentes. Selecciona uno:</h3>
+      <div id="listaResultados" style="display: grid; gap: 10px;"></div>
+    </div>
+
+    <!-- SECCIÓN ENCONTRADA (oculta hasta que se busque) -->
+    <div id="resultadoContainer" style="display: none;">
+      
+      <!-- ENCABEZADO CON CARGO, NOMBRE Y KPIS DE EXPERIENCIA -->
+      <div class="encabezado">
+        <div class="cargo" id="cargo">—</div>
+        <div class="nombre-completo" id="nombreCompleto">—</div>
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <span class="kpi-val" id="kpiAnosDocencia">—</span>
+            <span class="kpi-label">Años Docencia</span>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-val" id="kpiAnosUam">—</span>
+            <span class="kpi-label">Años en UAM</span>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-val" id="kpiAnosInvestigacion">—</span>
+            <span class="kpi-label">Años Investigación</span>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-val" id="kpiAnosProfesional">—</span>
+            <span class="kpi-label">Experiencia Prof.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECCIÓN: INFORMACIÓN PERSONAL -->
+      <details class="seccion" open>
+        <summary class="titulo-seccion">👤 Información Personal</summary>
+        <div class="seccion-contenido">
+          <div class="campos-doble">
+            <div class="campo">
+              <label class="etiqueta">Tipo de Identificación</label>
+              <div class="valor" id="tipoId">—</div>
+            </div>
+            <div class="campo">
+              <label class="etiqueta">Número de Identificación</label>
+              <div class="valor" id="numeroId">—</div>
+            </div>
+            <div class="campo">
+              <label class="etiqueta">Lugar de Expedición</label>
+              <div class="valor" id="lugarExp">—</div>
+            </div>
+            <div class="campo">
+              <label class="etiqueta">Fecha de Expedición</label>
+              <div class="valor" id="fechaExp">—</div>
+            </div>
+            <div class="campo">
+              <label class="etiqueta">Primer Nombre</label>
+              <div class="valor" id="nombre1">—</div>
+            </div>
+            <div class="campo">
+              <label class="etiqueta">Segundo Nombre</label>
+              <div class="valor" id="nombre2">—</div>
+            </div>
+            <div class="campo">
+              <label class="etiqueta">Primer Apellido</label>
+              <div class="valor" id="apellido1">—</div>
+            </div>
+            <div class="campo">
+              <label class="etiqueta">Segundo Apellido</label>
+              <div class="valor" id="apellido2">—</div>
+            </div>
+            <div class="campo">
+              <label class="etiqueta">Fecha de Nacimiento</label>
+              <div class="valor" id="fechaNac">—</div>
+            </div>
+            <div class="campo">
+              <label class="etiqueta">Edad</label>
+              <div class="valor" id="edad">—</div>
+            </div>
+            <div class="campo">
+              <label class="etiqueta">Número de Contacto</label>
+              <div class="valor" id="contacto">—</div>
+            </div>
+            <div class="campo">
+              <label class="etiqueta">Tipo de Sangre (RH)</label>
+              <div class="valor" id="rh">—</div>
+            </div>
+            <div class="campo">
+              <label class="etiqueta">Género</label>
+              <div class="valor" id="genero">—</div>
+            </div>
+            <div class="campo">
+              <label class="etiqueta">Dirección</label>
+              <div class="valor" id="direccion">—</div>
+            </div>
+            <div class="campo">
+              <label class="etiqueta">Estado Civil</label>
+              <div class="valor" id="estadoCivil">—</div>
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <!-- SECCIÓN: INFORMACIÓN LABORAL -->
+      <details class="seccion" open>
+        <summary class="titulo-seccion">💼 Información Laboral</summary>
+        <div class="seccion-contenido">
+          <div class="campos-doble">
+            <div class="campo">
+              <label class="etiqueta">Departamento</label>
+              <div class="valor" id="departamento">—</div>
+            </div>
+            <div class="campo">
+              <label class="etiqueta">Estado Actual</label>
+              <div class="valor" id="estadoActual">—</div>
+            </div>
+            <div class="campo">
+              <label class="etiqueta">Fecha Inicio Vinculación</label>
+              <div class="valor" id="fechaInicioVinculacion">—</div>
+            </div>
+            <div class="campo">
+              <label class="etiqueta">Fecha Fin Vinculación</label>
+              <div class="valor" id="fechaFinVinculacion">—</div>
+            </div>
+            <div class="campo">
+              <label class="etiqueta">Fecha de la Novedad</label>
+              <div class="valor" id="fechaNovedad">—</div>
+            </div>
+            <div class="campo">
+              <label class="etiqueta">Tiempo en el Programa</label>
+              <div class="valor" id="tiempoPrograma">—</div>
+            </div>
+            <div class="campo">
+              <label class="etiqueta">Dedicación</label>
+              <div class="valor" id="dedicacion">—</div>
+            </div>
+            <div class="campo">
+              <label class="etiqueta">Correo Institucional</label>
+              <div class="valor" id="correoIns">—</div>
+            </div>
+            <div class="campo">
+              <label class="etiqueta">Correo Personal</label>
+              <div class="valor" id="correoPersonal">—</div>
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <!-- SECCIÓN: INFORMACIÓN DE CONTRATACIÓN -->
+      <details class="seccion" open>
+        <summary class="titulo-seccion">📋 Información de Contratación</summary>
+        <div class="seccion-contenido">
+          <div class="campos-doble">
+            <div class="campo">
+              <label class="etiqueta">Forma de Contratación</label>
+              <div class="valor" id="formaContratacion">—</div>
+            </div>
+            <div class="campo">
+              <label class="etiqueta">Escalafón</label>
+              <div class="valor" id="escalafon">—</div>
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <!-- SECCIÓN: TRAYECTORIA Y EXPERIENCIA -->
+      <details class="seccion" open>
+        <summary class="titulo-seccion">⏳ Trayectoria y Experiencia</summary>
+        <div class="seccion-contenido">
+          <div class="campos-doble">
+            <div class="campo">
+              <label class="etiqueta">Año Solicitud Tarjeta Profesional</label>
+              <div class="valor" id="anoTarjetaProf">—</div>
+            </div>
+            <div class="campo">
+              <label class="etiqueta">Año Inicio como Docente</label>
+              <div class="valor" id="anoInicioDocente">—</div>
+            </div>
+            <div class="campo">
+              <label class="etiqueta">Año Inicio como Investigador</label>
+              <div class="valor" id="anoInicioInvestigador">—</div>
+            </div>
+            <div class="campo">
+              <label class="etiqueta">Año Ingreso a la UAM como Docente</label>
+              <div class="valor" id="anoIngresoUam">—</div>
+            </div>
+            <div class="campo">
+              <label class="etiqueta">Experiencia Profesional (Años)</label>
+              <div class="valor" id="anosProfesional">—</div>
+            </div>
+            <div class="campo">
+              <label class="etiqueta">Experiencia en Docencia (Años)</label>
+              <div class="valor" id="anosDocencia">—</div>
+            </div>
+            <div class="campo">
+              <label class="etiqueta">Formación Pedagógica (Años)</label>
+              <div class="valor" id="anosFormacionPedagogica">—</div>
+            </div>
+            <div class="campo">
+              <label class="etiqueta">Experiencia en Investigación (Años)</label>
+              <div class="valor" id="anosInvestigacion">—</div>
+            </div>
+            <div class="campo">
+              <label class="etiqueta">Tiempo en la UAM (Años)</label>
+              <div class="valor" id="anosUam">—</div>
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <!-- SECCIÓN: FORMACIÓN ACADÉMICA -->
+      <details class="seccion" open>
+        <summary class="titulo-seccion">🎓 Formación Académica</summary>
+        <div class="seccion-contenido">
+          <div class="campos-doble">
+            <div class="campo">
+              <label class="etiqueta">Máximo Nivel de Formación</label>
+              <div class="valor" id="nivelFormacion">—</div>
+            </div>
+            <div class="campo">
+              <label class="etiqueta">Área de Conocimiento</label>
+              <div class="valor" id="areaConocimiento">—</div>
+            </div>
+            <div class="campo">
+              <label class="etiqueta">Título Obtenido</label>
+              <div class="valor" id="titulo">—</div>
+            </div>
+            <div class="campo">
+              <label class="etiqueta">Institución</label>
+              <div class="valor" id="institucion">—</div>
+            </div>
+            <div class="campo">
+              <label class="etiqueta">País</label>
+              <div class="valor" id="pais">—</div>
+            </div>
+          </div>
+
+          <details class="desplegable-seccion">
+            <summary class="desplegable-header">
+              <span>📖 Ver / Ocultar Detalle de Formación Académica</span>
+            </summary>
+            <div class="desplegable-contenido">
+              <div class="campos-doble">
+                <div class="campo">
+                  <label class="etiqueta">Tecnología</label>
+                  <div class="valor" id="tecnologia">—</div>
+                </div>
+                <div class="campo">
+                  <label class="etiqueta">Fecha Tecnología</label>
+                  <div class="valor" id="fechaTecnologia">—</div>
+                </div>
+                <div class="campo">
+                  <label class="etiqueta">Institución Tecnología</label>
+                  <div class="valor" id="institucionTecnologia">—</div>
+                </div>
+                <div class="campo">
+                  <label class="etiqueta">Pais Tecnología</label>
+                  <div class="valor" id="paisTecnologia">—</div>
+                </div>
+                <div class="campo">
+                  <label class="etiqueta">Especialización Tecnológica</label>
+                  <div class="valor" id="especializacionTecnologia">—</div>
+                </div>
+                <div class="campo">
+                  <label class="etiqueta">Fecha Especialización Tecnológica</label>
+                  <div class="valor" id="fechaEspecializacionTecnologia">—</div>
+                </div>
+                <div class="campo">
+                  <label class="etiqueta">Institución Especialización Tecnológica</label>
+                  <div class="valor" id="institucionEspecializacionTecnologia">—</div>
+                </div>
+                <div class="campo">
+                  <label class="etiqueta">Pais Especialización Tecnológica</label>
+                  <div class="valor" id="paisEspecializacionTecnologia">—</div>
+                </div>
+                <div class="campo">
+                  <label class="etiqueta">Pregrado</label>
+                  <div class="valor" id="pregrado">—</div>
+                </div>
+                <div class="campo">
+                  <label class="etiqueta">Fecha Pregrado</label>
+                  <div class="valor" id="fechaPregrado">—</div>
+                </div>
+                <div class="campo">
+                  <label class="etiqueta">Institución Pregrado</label>
+                  <div class="valor" id="institucionPregrado">—</div>
+                </div>
+                <div class="campo">
+                  <label class="etiqueta">Pais Pregrado</label>
+                  <div class="valor" id="paisPregrado">—</div>
+                </div>
+                <div class="campo">
+                  <label class="etiqueta">Pregrado 2</label>
+                  <div class="valor" id="pregrado2">—</div>
+                </div>
+                <div class="campo">
+                  <label class="etiqueta">Fecha Pregrado 2</label>
+                  <div class="valor" id="fechaPregrado2">—</div>
+                </div>
+                <div class="campo">
+                  <label class="etiqueta">Institución Pregrado 2</label>
+                  <div class="valor" id="institucionPregrado2">—</div>
+                </div>
+                <div class="campo">
+                  <label class="etiqueta">Pais Pregrado 2</label>
+                  <div class="valor" id="paisPregrado2">—</div>
+                </div>
+                <div class="campo">
+                  <label class="etiqueta">Especialización</label>
+                  <div class="valor" id="especializacion">—</div>
+                </div>
+                <div class="campo">
+                  <label class="etiqueta">Fecha Especialización</label>
+                  <div class="valor" id="fechaEspecializacion">—</div>
+                </div>
+                <div class="campo">
+                  <label class="etiqueta">Institución Especialización</label>
+                  <div class="valor" id="institucionEspecializacion">—</div>
+                </div>
+                <div class="campo">
+                  <label class="etiqueta">Pais Especialización</label>
+                  <div class="valor" id="paisEspecializacion">—</div>
+                </div>
+                <div class="campo">
+                  <label class="etiqueta">Maestría</label>
+                  <div class="valor" id="maestria">—</div>
+                </div>
+                <div class="campo">
+                  <label class="etiqueta">Fecha Maestría</label>
+                  <div class="valor" id="fechaMaestria">—</div>
+                </div>
+                <div class="campo">
+                  <label class="etiqueta">Institución Maestría</label>
+                  <div class="valor" id="institucionMaestria">—</div>
+                </div>
+                <div class="campo">
+                  <label class="etiqueta">Pais Maestría</label>
+                  <div class="valor" id="paisMaestria">—</div>
+                </div>
+                <div class="campo">
+                  <label class="etiqueta">Doctorado</label>
+                  <div class="valor" id="doctorado">—</div>
+                </div>
+                <div class="campo">
+                  <label class="etiqueta">Fecha Doctorado</label>
+                  <div class="valor" id="fechaDoctorado">—</div>
+                </div>
+                <div class="campo">
+                  <label class="etiqueta">Institución Doctorado</label>
+                  <div class="valor" id="institucionDoctorado">—</div>
+                </div>
+                <div class="campo">
+                  <label class="etiqueta">Pais Doctorado</label>
+                  <div class="valor" id="paisDoctorado">—</div>
+                </div>
+              </div>
+            </div>
+          </details>
+        </div>
+      </details>
+
+    </div>
+
+  </div>
+
+  <footer>
+    <div class="logo-text">Universidad Autónoma de Manizales</div>
+    <p>&copy; 2026 UAM. Todos los derechos reservados.</p>
+    <p>Sistema de Información de Docentes</p>
+  </footer>
+
+  <script src="js/api.js"></script>
+  <script src="js/docentes.js"></script>
+</body>
+</html>
