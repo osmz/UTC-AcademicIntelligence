@@ -809,6 +809,13 @@ def construir_observaciones_df(
             if observacion == '':
                 continue
 
+            docente_asignatura = ''
+            if asignatura_encontrada:
+                docente_asignatura = asignatura_encontrada.get(
+                    'DOCENTE',
+                    ''
+                )
+
             registros.append({
 
                 'SEMESTRE':
@@ -834,6 +841,9 @@ def construir_observaciones_df(
 
                 'ASIGNATURA':
                     asignatura,
+
+                'DOCENTE':
+                    docente_asignatura,
 
                 'PERIODO':
                     periodo,

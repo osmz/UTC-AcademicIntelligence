@@ -81,6 +81,7 @@ HOJAS_AUTOMATICAS = {
         'NUMERO_ESTUDIANTE',
         'DOCUMENTO',
         'ASIGNATURA',
+        'DOCENTE',
         'PERIODO',
         'TIPO_EVALUACION',
         'COLUMNA_OBSERVACION',
