@@ -3,4 +3,5 @@ __pycache__/
 *.py[cod]
 .venv/
 datos_generados/
+datos_referencia/
 .DS_Store

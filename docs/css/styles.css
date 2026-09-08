@@ -766,8 +766,9 @@ footer p {
 .semester-no-cursado .semester-badge { background: #eef2f4; color: #5f6d76; }
 .semester-summary { margin-top: 10px; border-top: 1px solid #e4efef; padding-top: 8px; font-size: 11px; }
 .semester-summary h4 { color: #087e8b; font-size: 10px; letter-spacing: .7px; text-transform: uppercase; margin-bottom: 6px; }
-.semester-summary ul { list-style: none; display: grid; gap: 4px; color: #33545d; }
-.semester-summary ul li { font-size: 11px; line-height: 1.4; }
+.semester-summary ul { list-style: none; display: flex; flex-wrap: wrap; gap: 4px 0; color: #33545d; }
+.semester-summary ul li { font-size: 11px; line-height: 1.4; white-space: nowrap; }
+.semester-summary ul li:not(:last-child)::after { content: "|"; margin: 0 7px; color: #9ab0b4; }
 .semester-summary.empty p { margin-top: 8px; color: #58707a; font-size: 11px; }
 .semester-performance-list { display: grid; gap: 18px; }
 .semester-performance { background: #ffffff; border: 1px solid #e1eeee; border-radius: 8px; overflow: hidden; }
@@ -792,11 +793,14 @@ td small { display: block; color: #829397; margin-top: 4px; }
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 8px 12px;
+  width: 32px;
+  height: 32px;
+  padding: 0;
   background: #0069a3;
   color: white;
   border-radius: 5px;
-  font-weight: 700;
+  font-size: 16px;
+  line-height: 1;
   text-decoration: none;
 }
 .list-link:hover { background: #f4d73b; color: #073b5c; }

@@ -69,6 +69,10 @@ document.addEventListener("DOMContentLoaded", async function () {
         ID_HOJA: nota.ID_HOJA,
         SEMESTRE: nota.SEMESTRE,
         NIVEL: nota.NIVEL,
+        PROGRAMA: nota.PROGRAMA || nota.NIVEL || "",
+        SEMESTRE_ACADEMICO: nota.SEMESTRE_ACADEMICO || "",
+        SEMESTRE_DECLARADO: nota.SEMESTRE_DECLARADO || "",
+        DIAGNOSTICO_SEMESTRE: nota.DIAGNOSTICO_SEMESTRE || "",
         NOMBRE_ARCHIVO: nota.NOMBRE_ARCHIVO,
         NUMERO: nota.NUMERO_ESTUDIANTE,
         DOCUMENTO: nota.DOCUMENTO,
@@ -253,27 +257,23 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
   }
 
-  function convertirNumeroSemestre(semestre) {
-    if (!semestre) return null;
-    const texto = String(semestre).trim();
-    const match = texto.match(/(\d{4})-(\d+)/);
-    if (match) {
-      const year = parseInt(match[1], 10);
-      const periodo = parseInt(match[2], 10);
-      const baseYear = Math.min(...(estudiantes.map(function (registro) {
-        const item = String(registro.SEMESTRE || registro.PERIODO || "").trim();
-        const matchItem = item.match(/(\d{4})-(\d+)/);
-        return matchItem ? parseInt(matchItem[1], 10) : year;
-      }).filter(Boolean))); 
+  function convertirNumeroSemestre(registro) {
+    const declarado = parseInt(registro && registro.SEMESTRE_ACADEMICO, 10);
+    if (declarado >= 1 && declarado <= 4) return declarado;
 
-      if (periodo === 1) return ((year - baseYear) * 2) + 1;
-      if (periodo === 3) return ((year - baseYear) * 2) + 2;
-      return null;
-    }
+    const periodo = String(registro && (registro.SEMESTRE || registro.PERIODO) || "").trim();
+    const programa = String(registro && (registro.PROGRAMA || registro.NIVEL) || "").trim().toUpperCase();
+    const match = periodo.match(/\d{4}-(1|3)/);
+    if (!match) return null;
 
-    const fallback = String(semestre).match(/(\d+)/g);
-    if (!fallback) return null;
-    return parseInt(fallback[fallback.length - 1], 10);
+    const reglas = {
+      "1-TL": 1,
+      "1-TP": 3,
+      "3-TL": 2,
+      "3-TP": 4
+    };
+
+    return reglas[`${match[1]}-${programa}`] || null;
   }
 
   function nombreSemestre(numero) {
@@ -313,7 +313,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     };
 
     const numerosDisponibles = registros.map(function (nota) {
-      return convertirNumeroSemestre(nota.SEMESTRE || nota.PERIODO);
+      return convertirNumeroSemestre(nota);
     }).filter(function (valor) {
       return valor !== null;
     });
@@ -324,7 +324,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     return semestres.map(function (numeroSemestre) {
       const semestrePeriodo = periodosPorSemestre[numeroSemestre] || "—";
       const registrosDeSemestre = registros.filter(function (registro) {
-        const numero = convertirNumeroSemestre(registro.SEMESTRE || registro.PERIODO);
+        const numero = convertirNumeroSemestre(registro);
         return numero === numeroSemestre;
       });
       const hayInfo = registrosDeSemestre.length > 0;
@@ -425,17 +425,23 @@ document.addEventListener("DOMContentLoaded", async function () {
     const grupos = new Map();
 
     registros.forEach(function (nota) {
-      const semestre = String(nota.SEMESTRE || "Sin semestre");
-      if (!grupos.has(semestre)) {
-        grupos.set(semestre, []);
+      const numero = convertirNumeroSemestre(nota);
+      const clave = numero === null ? "sin-semestre" : String(numero);
+      if (!grupos.has(clave)) {
+        grupos.set(clave, []);
       }
-      grupos.get(semestre).push(nota);
+      grupos.get(clave).push(nota);
     });
 
-    return Array.from(grupos.entries()).map(function ([semestre, items]) {
+    return Array.from(grupos.entries()).sort(function (a, b) {
+      if (a[0] === "sin-semestre") return 1;
+      if (b[0] === "sin-semestre") return -1;
+      return parseInt(a[0], 10) - parseInt(b[0], 10);
+    }).map(function ([semestre, items]) {
+      const numero = semestre === "sin-semestre" ? null : parseInt(semestre, 10);
       return {
-        semestre: semestre,
-        titulo: semestre ? `${semestre}` : "Semestre no disponible",
+        semestre: numero,
+        titulo: numero === null ? "Semestre no disponible" : nombreSemestre(numero),
         registros: items
       };
     });
@@ -483,7 +489,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       const rows = bloque.registros.map(function (nota) {
         const idArchivo = nota.ID_ARCHIVO || "";
         const tipoNota = nota.TIPO_EVALUACION || "Información no disponible";
-        return `<tr><td><strong>${escapar(nota.ASIGNATURA || "Sin asignatura")}</strong><small>${escapar(nota.DURACION || "Sin semanas")}</small></td><td>${escapar(nota.DOCENTE || "Información no disponible")}</td><td>${escapar(nota.SEMESTRE || "—")}</td><td>${escapar(nota.PERIODO || "—")}</td><td>${escapar(tipoNota)}</td><td class="grade">${escapar(nota.VALOR_ORIGINAL || "—")}</td><td><span class="grade-status status-${String(nota.ESTADO_NOTA || "VACIA").toLowerCase()}">${escapar(nota.ESTADO_NOTA || "Sin nota")}</span></td><td>${idArchivo ? `<a class="list-link" href="${generarEnlaceLista(idArchivo)}" target="_blank" rel="noopener noreferrer">Ir a la lista</a>` : "Sin enlace"}</td></tr>`;
+        return `<tr><td><strong>${escapar(nota.ASIGNATURA || "Sin asignatura")}</strong><small>${escapar(nota.DURACION || "Sin semanas")}</small></td><td>${escapar(nota.DOCENTE || "Información no disponible")}</td><td>${escapar(nota.SEMESTRE || "—")}</td><td>${escapar(nota.PERIODO || "—")}</td><td>${escapar(tipoNota)}</td><td class="grade">${escapar(nota.VALOR_ORIGINAL || "—")}</td><td><span class="grade-status status-${String(nota.ESTADO_NOTA || "VACIA").toLowerCase()}">${escapar(nota.ESTADO_NOTA || "Sin nota")}</span></td><td>${idArchivo ? `<a class="list-link" href="${generarEnlaceLista(idArchivo)}" target="_blank" rel="noopener noreferrer" title="Ir a la lista" aria-label="Ir a la lista">📋</a>` : "Sin enlace"}</td></tr>`;
       }).join("");
 
       return `<div class="semester-performance"><div class="semester-performance-header"><h3>${escapar(bloque.titulo)}</h3></div><div class="table-wrap"><table><thead><tr><th>Asignatura</th><th>Docente</th><th>Semestre</th><th>Periodo</th><th>Tipo</th><th>Nota</th><th>Estado</th><th>Lista</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
