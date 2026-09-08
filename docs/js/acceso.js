@@ -6,6 +6,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
   document.getElementById("btnLogout").addEventListener("click", function () {
     sessionStorage.clear();
-    window.location.href = "index.html";
+    limpiarColecciones().finally(function () {
+      window.location.href = "index.html";
+    });
   });
 });

@@ -46,13 +46,22 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // ✅ Login exitoso
     console.log("✅ Login exitoso, guardando datos...");
-    // Guardar datos en sessionStorage
-    sessionStorage.setItem("docentes", JSON.stringify(resultado.docentes || []));
-    sessionStorage.setItem("estudiantes", JSON.stringify(resultado.estudiantes || []));
-    sessionStorage.setItem("asignaturas", JSON.stringify(resultado.asignaturas || []));
-    sessionStorage.setItem("notas", JSON.stringify(resultado.notas || []));
-    sessionStorage.setItem("observaciones", JSON.stringify(resultado.observaciones || []));
-    sessionStorage.setItem("seguimiento", JSON.stringify(resultado.seguimiento || []));
+    // Colecciones pesadas van a IndexedDB; sessionStorage solo guarda datos livianos (evita QuotaExceededError)
+    try {
+      await Promise.all([
+        guardarColeccion("docentes", resultado.docentes || []),
+        guardarColeccion("estudiantes", resultado.estudiantes || []),
+        guardarColeccion("asignaturas", resultado.asignaturas || []),
+        guardarColeccion("notas", resultado.notas || []),
+        guardarColeccion("observaciones", resultado.observaciones || []),
+        guardarColeccion("seguimiento", resultado.seguimiento || [])
+      ]);
+    } catch (errorAlmacenamiento) {
+      console.error("❌ Error guardando datos en IndexedDB:", errorAlmacenamiento);
+      loginCargando.style.display = "none";
+      mostrarError(loginError, "No se pudieron guardar los datos localmente. Intenta de nuevo.");
+      return;
+    }
     sessionStorage.setItem("usuario", usuario);
     sessionStorage.setItem("logueado", "true");
 
