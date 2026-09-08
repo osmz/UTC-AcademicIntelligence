@@ -87,6 +87,79 @@ def limpiar_texto(valor):
 
     return str(valor).strip()
 
+def determinar_semestre_academico(periodo, programa):
+    """Obtiene el semestre curricular desde periodo y programa."""
+
+    coincidencia = re.match(
+        r'^\d{4}-(1|3)$',
+        limpiar_texto(periodo)
+    )
+    programa = limpiar_texto(programa).upper()
+
+    if not coincidencia or programa not in {'TL', 'TP'}:
+        return None
+
+    reglas = {
+        ('1', 'TL'): 1,
+        ('1', 'TP'): 3,
+        ('3', 'TL'): 2,
+        ('3', 'TP'): 4
+    }
+
+    return reglas.get((coincidencia.group(1), programa))
+
+
+def campos_metadatos_academicos(metadatos_archivo):
+    return {
+        'PROGRAMA': metadatos_archivo.get('PROGRAMA', ''),
+        'SEMESTRE_ACADEMICO': metadatos_archivo.get(
+            'SEMESTRE_ACADEMICO', ''
+        ),
+        'SEMESTRE_DECLARADO': metadatos_archivo.get(
+            'SEMESTRE_DECLARADO', ''
+        ),
+        'DIAGNOSTICO_SEMESTRE': metadatos_archivo.get(
+            'DIAGNOSTICO_SEMESTRE', ''
+        )
+    }
+
+
+def extraer_semestre_nombre(nombre_archivo):
+    """Extrae el semestre declarado en el nombre del grupo."""
+
+    coincidencia = re.search(
+        r'\b([1-4])(?:er|ro|do|to)?\s*sem',
+        limpiar_texto(nombre_archivo).lower()
+    )
+
+    return int(coincidencia.group(1)) if coincidencia else None
+
+
+def preparar_metadatos_academicos(metadatos_archivo):
+    """Agrega semestre curricular y diagnóstico de coherencia al archivo."""
+
+    metadatos = dict(metadatos_archivo)
+    programa = metadatos.get('PROGRAMA', metadatos.get('NIVEL', ''))
+    semestre = determinar_semestre_academico(
+        metadatos.get('SEMESTRE', ''),
+        programa
+    )
+    semestre_declarado = extraer_semestre_nombre(
+        metadatos.get('NOMBRE_ARCHIVO', '')
+    )
+
+    metadatos['PROGRAMA'] = limpiar_texto(programa).upper()
+    metadatos['SEMESTRE_ACADEMICO'] = semestre or ''
+    metadatos['SEMESTRE_DECLARADO'] = semestre_declarado or ''
+    metadatos['DIAGNOSTICO_SEMESTRE'] = (
+        'COHERENTE'
+        if semestre is not None and semestre_declarado == semestre
+        else 'INCONSISTENTE'
+        if semestre is not None and semestre_declarado is not None
+        else 'SIN_VALIDACION'
+    )
+
+    return metadatos
 
 def es_vacio(valor):
     """
@@ -180,7 +253,6 @@ def obtener_hojas_archivo(id_archivo):
         })
 
     return pd.DataFrame(hojas)
-
 
 # ============================================================
 # OBTENER INFORMACIÓN DE UNA HOJA
@@ -544,6 +616,10 @@ def construir_estudiantes_df(
                 numero
         }
 
+        registro.update(
+            campos_metadatos_academicos(metadatos_archivo)
+        )
+
         # ----------------------------------------------------
         # Agregar columnas personales
         # ----------------------------------------------------
@@ -599,6 +675,8 @@ def construir_asignaturas_df(
 
             'ID_HOJA':
                 id_hoja,
+
+            **campos_metadatos_academicos(metadatos_archivo),
 
             'COLUMNA':
                 asignatura['COLUMNA'],
@@ -745,6 +823,19 @@ def construir_observaciones_df(
                 asignatura_encontrada = item
                 break
 
+        if asignatura_encontrada is None:
+            columnas_anteriores = [
+                item
+                for item in columnas_academicas
+                if item['COLUMNA'] < columna
+            ]
+            if columnas_anteriores:
+                asignatura_encontrada = max(
+                    columnas_anteriores,
+                    key=lambda item: item['COLUMNA']
+                )
+                asignatura = asignatura_encontrada['ASIGNATURA']
+
         # ----------------------------------------------------
         # Si es una observación genérica, tomar metadatos
         # de la asignatura correspondiente
@@ -832,6 +923,8 @@ def construir_observaciones_df(
 
                 'ID_HOJA':
                     id_hoja,
+
+                **campos_metadatos_academicos(metadatos_archivo),
 
                 'NUMERO_ESTUDIANTE':
                     numero,
@@ -980,6 +1073,8 @@ def construir_notas_df(
                 'ID_HOJA':
                     id_hoja,
 
+                **campos_metadatos_academicos(metadatos_archivo),
+
                 'NUMERO_ESTUDIANTE':
                     numero,
 
@@ -1033,6 +1128,10 @@ def procesar_hoja_indice(
     metadatos_archivo,
     id_hoja
 ):
+
+    metadatos_archivo = preparar_metadatos_academicos(
+        metadatos_archivo
+    )
 
     print(
         f"\n{'=' * 90}"

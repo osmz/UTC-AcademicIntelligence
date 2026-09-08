@@ -8,12 +8,14 @@ try:
     from .fase_01_archivos import ejecutar_fase_1
     from .fase_02_estructura import (
         obtener_hojas_archivo,
+        preparar_metadatos_academicos,
         procesar_hoja_indice
     )
 except ImportError:
     from fase_01_archivos import ejecutar_fase_1
     from fase_02_estructura import (
         obtener_hojas_archivo,
+        preparar_metadatos_academicos,
         procesar_hoja_indice
     )
 
@@ -39,6 +41,10 @@ HOJAS_AUTOMATICAS = {
     'ARCHIVOS': [
         'SEMESTRE',
         'NIVEL',
+        'PROGRAMA',
+        'SEMESTRE_ACADEMICO',
+        'SEMESTRE_DECLARADO',
+        'DIAGNOSTICO_SEMESTRE',
         'ID_ARCHIVO',
         'NOMBRE_ARCHIVO',
         'URL',
@@ -47,6 +53,10 @@ HOJAS_AUTOMATICAS = {
     'ESTUDIANTES': [
         'SEMESTRE',
         'NIVEL',
+        'PROGRAMA',
+        'SEMESTRE_ACADEMICO',
+        'SEMESTRE_DECLARADO',
+        'DIAGNOSTICO_SEMESTRE',
         'ID_ARCHIVO',
         'NOMBRE_ARCHIVO',
         'ID_HOJA',
@@ -62,6 +72,10 @@ HOJAS_AUTOMATICAS = {
     'ASIGNATURAS': [
         'SEMESTRE',
         'NIVEL',
+        'PROGRAMA',
+        'SEMESTRE_ACADEMICO',
+        'SEMESTRE_DECLARADO',
+        'DIAGNOSTICO_SEMESTRE',
         'ID_ARCHIVO',
         'NOMBRE_ARCHIVO',
         'ID_HOJA',
@@ -75,6 +89,10 @@ HOJAS_AUTOMATICAS = {
     'OBSERVACIONES': [
         'SEMESTRE',
         'NIVEL',
+        'PROGRAMA',
+        'SEMESTRE_ACADEMICO',
+        'SEMESTRE_DECLARADO',
+        'DIAGNOSTICO_SEMESTRE',
         'ID_ARCHIVO',
         'NOMBRE_ARCHIVO',
         'ID_HOJA',
@@ -91,6 +109,10 @@ HOJAS_AUTOMATICAS = {
     'NOTAS': [
         'SEMESTRE',
         'NIVEL',
+        'PROGRAMA',
+        'SEMESTRE_ACADEMICO',
+        'SEMESTRE_DECLARADO',
+        'DIAGNOSTICO_SEMESTRE',
         'ID_ARCHIVO',
         'NOMBRE_ARCHIVO',
         'ID_HOJA',
@@ -193,12 +215,13 @@ def procesar_archivos(archivos_df):
 
     for archivo in archivos_df.to_dict('records'):
 
-        metadatos_archivo = {
+        metadatos_archivo = preparar_metadatos_academicos({
             'SEMESTRE': archivo['SEMESTRE'],
             'NIVEL': archivo['NIVEL'],
+            'PROGRAMA': archivo.get('PROGRAMA', archivo['NIVEL']),
             'ID_ARCHIVO': archivo['ID_ARCHIVO'],
             'NOMBRE_ARCHIVO': archivo['NOMBRE_ARCHIVO']
-        }
+        })
 
         hojas_df = obtener_hojas_archivo(
             archivo['ID_ARCHIVO']
@@ -295,6 +318,13 @@ def publicar_dataframes(
 def ejecutar_fase_3():
 
     archivos_df = ejecutar_fase_1()
+
+    archivos_df = archivos_df.apply(
+        lambda fila: pd.Series(
+            preparar_metadatos_academicos(fila.to_dict())
+        ),
+        axis=1
+    )
 
     estudiantes_df, asignaturas_df, observaciones_df, notas_df = (
         procesar_archivos(archivos_df)

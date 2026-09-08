@@ -290,6 +290,9 @@ def ejecutar_fase_1():
                     'NIVEL':
                         nivel_nombre,
 
+                    'PROGRAMA':
+                        nivel_nombre,
+
                     'ID_ARCHIVO':
                         archivo['id'],
 
