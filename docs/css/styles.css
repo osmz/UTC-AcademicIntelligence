@@ -675,11 +675,18 @@ footer p {
   display: grid;
   grid-template-columns: .8fr 1.2fr;
   gap: 28px;
-  align-items: end;
+  align-items: center;
   padding: 24px;
   margin-bottom: 26px;
   border-top: 4px solid #f4d73b;
   background: #eef7f7;
+}
+
+.search-copy {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 100%;
 }
 
 .search-copy h2,
@@ -711,7 +718,7 @@ footer p {
 .student-identity h2 { margin: 8px 0; font-size: clamp(23px, 4vw, 36px); }
 .student-identity p { color: #c9e0e0; }
 .student-identity .eyebrow { color: #f4d73b; }
-.status-pill, .grade-status { display: inline-flex; align-items: center; padding: 6px 10px; border-radius: 999px; font-size: 11px; font-weight: 800; }
+.status-pill, .grade-status, .semester-badge { display: inline-flex; align-items: center; padding: 6px 10px; border-radius: 999px; font-size: 11px; font-weight: 800; }
 .status-pill { background: #f4d73b; color: #073b5c; }
 .metric-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 26px; }
 .metric { padding: 17px; border-left: 4px solid #087e8b; background: #eef7f7; }
@@ -728,8 +735,50 @@ footer p {
 .timeline-list { display: grid; gap: 10px; }
 .timeline-item { padding: 12px 14px; border-left: 3px solid #f4d73b; background: white; }
 .timeline-item strong { color: #073b5c; }
+.timeline-item small { display: block; color: #63777b; font-size: 11px; margin-top: 4px; }
+.semester-card {
+  padding: 16px 18px;
+  border-radius: 8px;
+  border-left: 4px solid #c2d8d8;
+  background: white;
+  margin-bottom: 12px;
+}
+.semester-card p { color: #52707a; margin-top: 6px; }
+.semester-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.semester-card-header strong { color: #073b5c; }
+.semester-badge {
+  background: #dfeef0;
+  color: #05506c;
+}
+.semester-cursado { border-left-color: #1a9d70; }
+.semester-actual { border-left-color: #f4d73b; }
+.semester-historico { border-left-color: #9baab5; }
+.semester-no-cursado { border-left-color: #d6d9dc; }
+.semester-cursado .semester-badge { background: #d9f3e6; color: #137044; }
+.semester-actual .semester-badge { background: #fff1b8; color: #7e5d00; }
+.semester-historico .semester-badge { background: #edf1f5; color: #4a5664; }
+.semester-no-cursado .semester-badge { background: #eef2f4; color: #5f6d76; }
+.semester-summary { margin-top: 10px; border-top: 1px solid #e4efef; padding-top: 8px; font-size: 11px; }
+.semester-summary h4 { color: #087e8b; font-size: 10px; letter-spacing: .7px; text-transform: uppercase; margin-bottom: 6px; }
+.semester-summary ul { list-style: none; display: grid; gap: 4px; color: #33545d; }
+.semester-summary ul li { font-size: 11px; line-height: 1.4; }
+.semester-summary.empty p { margin-top: 8px; color: #58707a; font-size: 11px; }
+.semester-performance-list { display: grid; gap: 18px; }
+.semester-performance { background: #ffffff; border: 1px solid #e1eeee; border-radius: 8px; overflow: hidden; }
+.semester-performance-header {
+  padding: 12px 16px;
+  background: #edf8f8;
+  border-bottom: 1px solid #dfeaea;
+}
+.semester-performance-header h3 { color: #073b5c; font-size: 16px; }
 .table-wrap { overflow-x: auto; }
-table { width: 100%; border-collapse: collapse; min-width: 720px; }
+table { width: 100%; border-collapse: collapse; min-width: 820px; }
 th, td { padding: 13px 10px; border-bottom: 1px solid #dceaea; text-align: left; vertical-align: top; }
 th { color: #087e8b; font-size: 11px; letter-spacing: .7px; text-transform: uppercase; }
 td { color: #33545d; font-size: 13px; }
@@ -739,9 +788,24 @@ td small { display: block; color: #829397; margin-top: 4px; }
 .status-reprobada { background: #ffe1df; color: #a13d35; }
 .status-vacia { background: #fff1c9; color: #866512; }
 .status-na { background: #e7e9ed; color: #58616b; }
+.list-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  background: #0069a3;
+  color: white;
+  border-radius: 5px;
+  font-weight: 700;
+  text-decoration: none;
+}
+.list-link:hover { background: #f4d73b; color: #073b5c; }
 .observation-list { display: grid; gap: 10px; }
 .observation-list article { padding: 14px; background: white; border-left: 3px solid #f4d73b; }
-.observation-list strong { color: #073b5c; }
+.observation-meta { display: flex; justify-content: space-between; gap: 12px; align-items: center; }
+.observation-meta strong { color: #073b5c; }
+.observation-meta span { color: #58707a; font-size: 12px; }
+.observation-teacher { color: #087e8b; margin-top: 8px; }
 .observation-list p { color: #52707a; line-height: 1.5; margin-top: 6px; }
 
 @media (max-width: 700px) {

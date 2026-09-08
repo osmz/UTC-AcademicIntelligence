@@ -4,18 +4,15 @@
 
 let allDocentes = [];
 
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", async function () {
   // Verificar si el usuario está logueado
   if (!sessionStorage.getItem("logueado")) {
     window.location.href = "index.html";
     return;
   }
 
-  // Cargar docentes desde sessionStorage
-  const docentesJSON = sessionStorage.getItem("docentes");
-  if (docentesJSON) {
-    allDocentes = JSON.parse(docentesJSON);
-  }
+  // Cargar docentes desde IndexedDB
+  allDocentes = await leerColeccion("docentes");
 
   // Elementos del DOM
   const inputBusqueda = document.getElementById("busqueda");
