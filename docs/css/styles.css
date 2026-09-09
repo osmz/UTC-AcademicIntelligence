@@ -724,7 +724,7 @@ footer p {
 .metric { padding: 17px; border-left: 4px solid #087e8b; background: #eef7f7; }
 .metric span { display: block; color: #52707a; font-size: 12px; }
 .metric strong { display: block; color: #073b5c; font-size: 28px; margin-top: 5px; }
-.student-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.student-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: center; }
 .data-panel { padding: 24px; margin-bottom: 18px; background: #f8fbfb; border-top: 3px solid #087e8b; }
 .section-heading { margin-bottom: 18px; }
 .section-heading h2 { margin-bottom: 0; }

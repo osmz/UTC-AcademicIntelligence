@@ -455,6 +455,35 @@ document.addEventListener("DOMContentLoaded", async function () {
     return "https://docs.google.com/spreadsheets/d/" + encodeURIComponent(idArchivo.trim());
   }
 
+  function periodoTarjeta(item) {
+    return String(item.detalle || "").split(" · ")[0] || "—";
+  }
+
+  function construirObservacionesPorSemestre(historia, observacionesPerfil) {
+    return historia.map(function (item) {
+      const registrosSemestre = observacionesPerfil.filter(function (observacion) {
+        return convertirNumeroSemestre(observacion) === item.numero;
+      });
+
+      let mensaje = "";
+      if (item.estado === "no-cursado") {
+        mensaje = "Semestre no cursado aún";
+      } else if (item.estado === "historico") {
+        mensaje = item.mensaje || "Información histórica no disponible";
+      } else if (!registrosSemestre.length) {
+        mensaje = "Sin observaciones registradas en este semestre";
+      }
+
+      return {
+        numero: item.numero,
+        titulo: item.titulo,
+        periodo: periodoTarjeta(item),
+        registros: registrosSemestre,
+        mensaje: mensaje
+      };
+    });
+  }
+
   function mostrar(estudiante) {
     lista.hidden = true;
     perfil.hidden = false;
@@ -495,12 +524,17 @@ document.addEventListener("DOMContentLoaded", async function () {
       return `<div class="semester-performance"><div class="semester-performance-header"><h3>${escapar(bloque.titulo)}</h3></div><div class="table-wrap"><table><thead><tr><th>Asignatura</th><th>Docente</th><th>Semestre</th><th>Periodo</th><th>Tipo</th><th>Nota</th><th>Estado</th><th>Lista</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
     }).join("") || "<p>No hay notas registradas.</p>";
 
-    document.getElementById("observacionesEstudiante").innerHTML = observacionesPerfil.length ? observacionesPerfil.map(function (observacion) {
-      const docente = docenteObservacion(observacion, notasPerfil);
-      const contexto = observacion.SEMESTRE ? `${escapar(observacion.SEMESTRE)}${observacion.PERIODO ? ` · ${escapar(observacion.PERIODO)}` : ""}` : "Semestre no disponible";
-      const nombreAsignatura = observacion.ASIGNATURA || "Asignatura no disponible";
-      return `<article><div class="observation-meta"><strong>${escapar(nombreAsignatura)}</strong><span>${escapar(contexto)}</span></div><p class="observation-teacher"><strong>Docente:</strong> ${escapar(docente)}</p><p>${escapar(observacion.OBSERVACION || "Sin observación registrada.")}</p></article>`;
-    }).join("") : "<p>No hay observaciones registradas.</p>";
+    const observacionesPorSemestre = construirObservacionesPorSemestre(historia, observacionesPerfil);
+    document.getElementById("observacionesEstudiante").innerHTML = observacionesPorSemestre.map(function (bloque) {
+      const cuerpo = bloque.registros.length ? bloque.registros.map(function (observacion) {
+        const docente = docenteObservacion(observacion, notasPerfil);
+        const contexto = observacion.SEMESTRE ? `${escapar(observacion.SEMESTRE)}${observacion.PERIODO ? ` · ${escapar(observacion.PERIODO)}` : ""}` : "Semestre no disponible";
+        const nombreAsignatura = observacion.ASIGNATURA || "Asignatura no disponible";
+        return `<article><div class="observation-meta"><strong>${escapar(nombreAsignatura)}</strong><span>${escapar(contexto)}</span></div><p class="observation-teacher"><strong>Docente:</strong> ${escapar(docente)}</p><p>${escapar(observacion.OBSERVACION || "Sin observación registrada.")}</p></article>`;
+      }).join("") : `<p>${escapar(bloque.mensaje)}</p>`;
+
+      return `<div class="semester-performance"><div class="semester-performance-header"><h3>${escapar(bloque.titulo)} – ${escapar(bloque.periodo)}</h3></div><div class="observation-list">${cuerpo}</div></div>`;
+    }).join("");
   }
 
   function cerrarSesion() {

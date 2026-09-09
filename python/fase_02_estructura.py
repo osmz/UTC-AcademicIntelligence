@@ -1,6 +1,7 @@
 import pandas as pd
 import re
 import time
+import unicodedata
 from pathlib import Path
 
 from google.oauth2 import service_account
@@ -86,6 +87,73 @@ def limpiar_texto(valor):
         return ''
 
     return str(valor).strip()
+
+
+def clave_asignatura(valor):
+    """Normaliza nombres para comparar encabezados y asignaturas."""
+
+    texto = limpiar_texto(valor).lower()
+    texto = unicodedata.normalize('NFKD', texto)
+    texto = ''.join(
+        caracter
+        for caracter in texto
+        if not unicodedata.combining(caracter)
+    )
+    return re.sub(r'[^a-z0-9]+', ' ', texto).strip()
+
+
+def extraer_datos_observacion(nombre_columna):
+    """Extrae asignatura y evaluación desde el nombre de observación."""
+
+    texto = limpiar_texto(nombre_columna)
+    patrones = [
+        (r'^observaciones\s+parciales\s+de:\s*(.+)$', '1', 'Parciales'),
+        (r'^observaciones\s+finales\s+de:\s*(.+)$', '2', 'Finales'),
+        (r'^observaciones\s+de:\s*(.+)$', '', '')
+    ]
+
+    for patron, periodo, tipo_evaluacion in patrones:
+        coincidencia = re.match(patron, texto, flags=re.IGNORECASE)
+        if coincidencia:
+            return (
+                limpiar_texto(coincidencia.group(1)),
+                periodo,
+                tipo_evaluacion
+            )
+
+    return '', '', ''
+
+
+def buscar_asignatura_observacion(
+    asignatura,
+    periodo,
+    tipo_evaluacion,
+    columnas_academicas
+):
+    """Busca la asignatura observada y sus metadatos en el mismo grupo."""
+
+    clave = clave_asignatura(asignatura)
+    candidatas = [
+        item
+        for item in columnas_academicas
+        if clave and clave_asignatura(item.get('ASIGNATURA', '')) == clave
+    ]
+
+    if not candidatas:
+        return None
+
+    compatibles = [
+        item
+        for item in candidatas
+        if (not periodo or limpiar_texto(item.get('PERIODO')) == periodo)
+        and (
+            not tipo_evaluacion
+            or clave_asignatura(item.get('TIPO_EVALUACION', ''))
+            == clave_asignatura(tipo_evaluacion)
+        )
+    ]
+
+    return (compatibles or candidatas)[0]
 
 def determinar_semestre_academico(periodo, programa):
     """Obtiene el semestre curricular desde periodo y programa."""
@@ -749,92 +817,16 @@ def construir_observaciones_df(
         # Intentar identificar asignatura desde el encabezado
         # ----------------------------------------------------
 
-        asignatura = ''
+        asignatura, periodo, tipo_evaluacion = extraer_datos_observacion(
+            nombre_observacion
+        )
 
-        periodo = ''
-
-        tipo_evaluacion = ''
-
-        texto = nombre_observacion.lower()
-
-        # ----------------------------------------------------
-        # Observaciones Parciales de:
-        # ----------------------------------------------------
-
-        if 'parciales de:' in texto:
-
-            posicion = texto.find(
-                'parciales de:'
-            )
-
-            asignatura = nombre_observacion[
-                posicion + len('parciales de:')
-            ].strip()
-
-            tipo_evaluacion = 'Parciales'
-
-            periodo = '1'
-
-        # ----------------------------------------------------
-        # Observaciones Finales de:
-        # ----------------------------------------------------
-
-        elif 'finales de:' in texto:
-
-            posicion = texto.find(
-                'finales de:'
-            )
-
-            asignatura = nombre_observacion[
-                posicion + len('finales de:')
-            ].strip()
-
-            tipo_evaluacion = 'Finales'
-
-            periodo = '2'
-
-        # ----------------------------------------------------
-        # Observaciones de:
-        # ----------------------------------------------------
-
-        elif 'observaciones de:' in texto:
-
-            posicion = texto.find(
-                'observaciones de:'
-            )
-
-            asignatura = nombre_observacion[
-                posicion + len('observaciones de:')
-            ].strip()
-
-        # ----------------------------------------------------
-        # Buscar coincidencia con asignaturas
-        # ----------------------------------------------------
-
-        asignatura_encontrada = None
-
-        for item in columnas_academicas:
-
-            if (
-                item['ASIGNATURA'].strip().lower()
-                == asignatura.strip().lower()
-            ):
-
-                asignatura_encontrada = item
-                break
-
-        if asignatura_encontrada is None:
-            columnas_anteriores = [
-                item
-                for item in columnas_academicas
-                if item['COLUMNA'] < columna
-            ]
-            if columnas_anteriores:
-                asignatura_encontrada = max(
-                    columnas_anteriores,
-                    key=lambda item: item['COLUMNA']
-                )
-                asignatura = asignatura_encontrada['ASIGNATURA']
+        asignatura_encontrada = buscar_asignatura_observacion(
+            asignatura,
+            periodo,
+            tipo_evaluacion,
+            columnas_academicas
+        )
 
         # ----------------------------------------------------
         # Si es una observación genérica, tomar metadatos
