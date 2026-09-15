@@ -54,7 +54,9 @@ document.addEventListener("DOMContentLoaded", function () {
         guardarColeccion("asignaturas", resultado.asignaturas || []),
         guardarColeccion("notas", resultado.notas || []),
         guardarColeccion("observaciones", resultado.observaciones || []),
-        guardarColeccion("seguimiento", resultado.seguimiento || [])
+        guardarColeccion("seguimiento", resultado.seguimiento || []),
+        guardarColeccion("horarios", resultado.horarios || []),
+        guardarColeccion("calendarioAcademico", resultado.calendarioAcademico || [])
       ]);
     } catch (errorAlmacenamiento) {
       console.error("❌ Error guardando datos en IndexedDB:", errorAlmacenamiento);

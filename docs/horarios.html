@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Horarios académicos - UTC Faculty</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="app-page">
+  <main class="container schedule-container">
+    <header class="schedule-header">
+      <div>
+        <span class="eyebrow">Planificación académica</span>
+        <h1>Horarios</h1>
+        <p class="subtitle">Consulta semanal de grupos, docentes, aulas y asignaturas</p>
+      </div>
+      <div class="logout-section">
+        <span class="usuario-info">Sesión: <strong id="usuarioSpan">—</strong></span>
+        <button id="btnVolverModulos" class="btn-modules" type="button">Volver a módulos</button>
+        <button id="btnLogout" class="btn-logout" type="button">Cerrar Sesión</button>
+      </div>
+    </header>
+
+    <section class="schedule-search" aria-label="Filtros de horario">
+      <div class="section-heading">
+        <span class="section-label">Horario por grupo</span>
+        <h2>Selecciona un contexto académico</h2>
+        <p>Filtra la semana por semestre, programa y grupo.</p>
+      </div>
+      <div class="schedule-filter-grid">
+        <label>Semestre<select id="filtroSemestre"><option value="">Todos</option></select></label>
+        <label>Nivel<select id="filtroNivel"><option value="">Todos</option></select></label>
+        <label>Programa<select id="filtroPrograma"><option value="">Todos</option></select></label>
+        <label>Grupo<select id="filtroGrupo"><option value="">Todos</option></select></label>
+        <label>Sede<select id="filtroSede"><option value="">Todas</option></select></label>
+        <button id="btnLimpiarFiltros" class="btn-limpiar" type="button">Limpiar filtros</button>
+      </div>
+    </section>
+
+    <section class="global-search data-panel" aria-label="Búsqueda global">
+      <div class="section-heading">
+        <span class="section-label">Búsqueda global</span>
+        <h2>Encuentra una persona, clase o espacio</h2>
+      </div>
+      <div class="global-search-row">
+        <input id="busquedaGlobal" type="search" placeholder="Docente, asignatura, monitor, aula, grupo o sede" autocomplete="off">
+        <select id="tipoBusqueda" aria-label="Tipo de búsqueda">
+          <option value="">Todos los campos</option>
+          <option value="DOCENTE">Docente</option>
+          <option value="MONITOR">Monitor</option>
+          <option value="ASIGNATURA">Asignatura</option>
+          <option value="AULA">Aula</option>
+          <option value="GRUPO">Grupo</option>
+          <option value="SEDE">Sede</option>
+        </select>
+        <button id="btnBuscarGlobal" type="button">Buscar</button>
+      </div>
+      <div id="resultadosGlobales" class="global-results" hidden></div>
+    </section>
+
+    <div id="estadoHorarios" class="data-notice" hidden></div>
+    <div id="errorHorarios" class="error" hidden></div>
+
+    <section id="resumenHorarios" class="schedule-summary" aria-label="Resumen del horario"></section>
+    <section class="data-panel schedule-panel">
+      <div class="section-heading schedule-panel-heading">
+        <div><span class="section-label">Vista semanal</span><h2 id="tituloHorario">Todos los horarios</h2></div>
+        <span id="contadorClases" class="result-count"></span>
+      </div>
+      <div id="tablaHorario" class="schedule-table-wrap"></div>
+    </section>
+
+    <section class="data-panel calendar-panel">
+      <div class="section-heading">
+        <span class="section-label">Calendario académico</span>
+        <h2 id="tituloCalendario">Eventos del semestre</h2>
+      </div>
+      <div id="calendarioAcademico" class="calendar-list"></div>
+    </section>
+  </main>
+  <footer><div class="logo-text">Universidad Autónoma de Manizales</div><p>&copy; 2026 UAM. Todos los derechos reservados.</p></footer>
+  <script src="js/storage.js"></script>
+  <script src="js/horarios.js"></script>
+</body>
+</html>

@@ -3,7 +3,8 @@
  */
 
 //const API_URL = "https://script.google.com/macros/s/AKfycbyJBHCrl8RWe4kNA0iYSeauKLKePPDuh_Y0Jo4Mc2a0CnHnrrAjfyksdyomIz8t1M-g/exec";
-const API_URL = "https://script.google.com/macros/s/AKfycbzE4RuBaVrCucyqQQlq5aiteqz_fjyvZmNCxyRGWScDHaC0SIEPicnksN_ek4XWyrz8/exec";
+//const API_URL = "https://script.google.com/macros/s/AKfycbzE4RuBaVrCucyqQQlq5aiteqz_fjyvZmNCxyRGWScDHaC0SIEPicnksN_ek4XWyrz8/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbzxncP7beGk7diEYmv6NK0soqfXL5_hi-HgN8Yayp3qycVNnepfoU3XChmEvy4rYOdy/exec";
 
 /**
  * login() - Valida usuario y contraseña contra Apps Script
@@ -41,7 +42,9 @@ async function login(usuario, clave) {
       asignaturas: informacion.asignaturas || [],
       notas: informacion.notas || [],
       observaciones: informacion.observaciones || [],
-      seguimiento: informacion.seguimiento || []
+      seguimiento: informacion.seguimiento || [],
+      horarios: informacion.horarios || [],
+      calendarioAcademico: informacion.calendarioAcademico || []
     };
 
   } catch (err) {

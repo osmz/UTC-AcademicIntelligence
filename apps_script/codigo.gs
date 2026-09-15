@@ -50,7 +50,9 @@ function obtenerInformacionAcademica() {
     asignaturas: obtenerTabla("ASIGNATURAS"),
     notas: obtenerTabla("NOTAS"),
     observaciones: obtenerTabla("OBSERVACIONES"),
-    seguimiento: obtenerTabla("SEGUIMIENTO")
+    seguimiento: obtenerTabla("SEGUIMIENTO"),
+    horarios: obtenerTabla("HORARIOS"),
+    calendarioAcademico: obtenerTabla("CALENDARIO_ACADEMICO")
   };
 }
 
@@ -108,7 +110,9 @@ function doPost(e) {
         asignaturas: informacionAcademica.asignaturas,
         notas: informacionAcademica.notas,
         observaciones: informacionAcademica.observaciones,
-        seguimiento: informacionAcademica.seguimiento
+        seguimiento: informacionAcademica.seguimiento,
+        horarios: informacionAcademica.horarios,
+        calendarioAcademico: informacionAcademica.calendarioAcademico
       })
     )
     .setMimeType(ContentService.MimeType.JSON);

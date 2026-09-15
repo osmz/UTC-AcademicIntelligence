@@ -19,6 +19,7 @@ UTC_General/
 │   ├── acceso.html          # Selector entre docentes y estudiantes
 │   ├── estudiantes.html     # Consulta académica de estudiantes
 │   ├── docentes.html        # Página de información de docentes
+│   ├── horarios.html        # Consulta semanal de horarios
 │   ├── css/                 # Estilos de la web
 │   └── js/                  # JavaScript de la web
 ├── python/                  # Procesamiento de archivos académicos
@@ -216,6 +217,12 @@ python -m python.fase_04_seguimiento
 # Generar recordatorios y reporte de estudiantes reprobados
 python -m python.fase_05_reportes
 
+# Diagnosticar horarios sin modificar Google Sheets
+python -c "from python.fase_06_horarios import diagnosticoFase6; diagnosticoFase6()"
+
+# Extraer y publicar HORARIOS y CALENDARIO_ACADEMICO
+python -c "from python.fase_06_horarios import ejecutarFase6; ejecutarFase6()"
+
 # Ejecutar todo el flujo usando una sola lectura de cada archivo origen
 python -m python.main
 
@@ -234,6 +241,16 @@ no se modifica porque sus datos se cargan manualmente.
 
 La fase 4 calcula y actualiza la pestaña `SEGUIMIENTO` a partir de `NOTAS`.
 La fase 5 calcula y actualiza `RECORDATORIOS` y `REPORTE_ESTUDIANTES`.
+La fase 6 extrae los archivos de horarios desde Drive y actualiza las pestañas
+`HORARIOS` y `CALENDARIO_ACADEMICO`. `diagnosticoFase6()` realiza la extracción
+y muestra alertas sin modificar esas pestañas; `ejecutarFase6()` publica el
+resultado mediante reemplazo completo, por lo que puede ejecutarse nuevamente
+sin acumular duplicados.
+La interfaz de horarios presenta la semana laboral de lunes a viernes en una
+tabla agrupada por grupo, con columnas de número, información del grupo, sede
+y días. La hora se muestra dentro de cada tarjeta de clase. Las asignaturas
+separadas por `/` se presentan como una secuencia `PRIMERO` y `DESPUÉS`, sin
+inventar fechas ni estados académicos.
 El comando `python -m python.main` ejecuta el flujo completo reutilizando los
 DataFrames en memoria. Las lecturas de los archivos origen no se repiten entre
 las fases 3, 4 y 5.
