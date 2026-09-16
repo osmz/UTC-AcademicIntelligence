@@ -21,6 +21,12 @@ document.addEventListener("DOMContentLoaded", async function () {
   const items = document.getElementById("itemsEstudiantes");
   const perfil = document.getElementById("perfilEstudiante");
   const estadoDatos = document.getElementById("estadoDatosEstudiante");
+  const consultaIndividual = document.getElementById("consultaIndividual");
+  const consultaGrupo = document.getElementById("consultaGrupo");
+  const resultadoGrupo = document.getElementById("resultadoGrupo");
+  const filtroGrupoSemestre = document.getElementById("filtroGrupoSemestre");
+  const filtroGrupoNivel = document.getElementById("filtroGrupoNivel");
+  const filtroGrupoNombre = document.getElementById("filtroGrupoNombre");
 
   if (!estudiantes.length && notas.length) {
     estudiantes = construirEstudiantesDesdeNotas(notas);
@@ -38,6 +44,21 @@ document.addEventListener("DOMContentLoaded", async function () {
   });
   document.getElementById("btnBuscarEstudiante").addEventListener("click", buscar);
   document.getElementById("btnLimpiarEstudiante").addEventListener("click", limpiar);
+  document.querySelectorAll(".student-mode-card").forEach(function (tarjeta) {
+    tarjeta.addEventListener("click", function () { cambiarModo(tarjeta.dataset.modo); });
+    tarjeta.addEventListener("keydown", function (event) {
+      if (event.key === "Enter" || event.key === " ") cambiarModo(tarjeta.dataset.modo);
+    });
+  });
+  filtroGrupoSemestre.addEventListener("change", poblarFiltrosGrupo);
+  filtroGrupoNivel.addEventListener("change", poblarFiltrosGrupo);
+  filtroGrupoNombre.addEventListener("change", function () {
+    document.getElementById("btnConsultarGrupo").disabled = !filtroGrupoNombre.value;
+  });
+  document.getElementById("btnConsultarGrupo").addEventListener("click", consultarGrupo);
+  document.getElementById("btnLimpiarGrupo").addEventListener("click", limpiarGrupo);
+  document.getElementById("btnCerrarObservacion").addEventListener("click", cerrarObservacion);
+  document.querySelector("[data-cerrar-observacion]").addEventListener("click", cerrarObservacion);
   input.addEventListener("keydown", function (event) {
     if (event.key === "Enter") buscar();
   });
@@ -49,6 +70,8 @@ document.addEventListener("DOMContentLoaded", async function () {
   });
 
   poblarFiltros();
+  poblarSemestresGrupo();
+  cambiarModo("seleccion");
 
   async function leer(nombre) {
     try {
@@ -535,6 +558,161 @@ document.addEventListener("DOMContentLoaded", async function () {
 
       return `<div class="semester-performance"><div class="semester-performance-header"><h3>${escapar(bloque.titulo)} – ${escapar(bloque.periodo)}</h3></div><div class="observation-list">${cuerpo}</div></div>`;
     }).join("");
+  }
+
+  function cambiarModo(modo) {
+    const esGrupo = modo === "grupo";
+    const esIndividual = modo === "individual";
+    consultaIndividual.hidden = !esIndividual;
+    consultaGrupo.hidden = !esGrupo;
+    resultadoGrupo.hidden = true;
+    lista.hidden = true;
+    perfil.hidden = true;
+    document.querySelectorAll(".student-mode-card").forEach(function (tarjeta) {
+      tarjeta.classList.toggle("student-mode-card-active", tarjeta.dataset.modo === modo);
+    });
+  }
+
+  function registrosGrupo() {
+    return estudiantes.filter(function (registro) {
+      return registro.ID_ARCHIVO || registro.NOMBRE_ARCHIVO;
+    });
+  }
+
+  function valorGrupo(registro, campo) {
+    return String(registro[campo] || "").trim();
+  }
+
+  function nombreGrupoDesdeRegistro(registro) {
+    return valorGrupo(registro, "NOMBRE_ARCHIVO");
+  }
+
+  function opcionesGrupo(filtros) {
+    return registrosGrupo().filter(function (registro) {
+      return (!filtros.semestre || valorGrupo(registro, "SEMESTRE") === filtros.semestre || valorGrupo(registro, "SEMESTRE_ACADEMICO") === filtros.semestre)
+        && (!filtros.nivel || valorGrupo(registro, "NIVEL") === filtros.nivel);
+    });
+  }
+
+  function valoresGrupo(registros, campo) {
+    return [...new Set(registros.map(function (registro) { return valorGrupo(registro, campo); }).filter(Boolean))].sort(function (a, b) {
+      return a.localeCompare(b, "es");
+    });
+  }
+
+  function llenarGrupo(selector, valores, texto, deshabilitado) {
+    const valorActual = selector.value;
+    selector.innerHTML = `<option value="">${texto}</option>`;
+    valores.forEach(function (valor) {
+      selector.insertAdjacentHTML("beforeend", `<option value="${escapar(valor)}">${escapar(valor)}</option>`);
+    });
+    selector.disabled = deshabilitado;
+    if (valores.includes(valorActual)) selector.value = valorActual;
+  }
+
+  function poblarSemestresGrupo() {
+    const semestres = valoresGrupo(registrosGrupo(), "SEMESTRE").filter(function (valor) {
+      return /^\d{4}-(?:1|3)$/.test(valor);
+    });
+    llenarGrupo(filtroGrupoSemestre, semestres, "Selecciona un semestre", false);
+  }
+
+  function poblarFiltrosGrupo() {
+    const semestre = filtroGrupoSemestre.value;
+    const contextoSemestre = opcionesGrupo({ semestre: semestre });
+    llenarGrupo(filtroGrupoNivel, valoresGrupo(contextoSemestre, "NIVEL"), "Selecciona un nivel", !semestre);
+    const nivel = filtroGrupoNivel.value;
+    const contextoNivel = opcionesGrupo({ semestre: semestre, nivel: nivel });
+    const grupos = [...new Set(contextoNivel.map(nombreGrupoDesdeRegistro).filter(Boolean))].sort(function (primero, segundo) {
+      const numeroPrimero = parseInt(primero.match(/grupo\s+(\d+)/i)?.[1] || "0", 10);
+      const numeroSegundo = parseInt(segundo.match(/grupo\s+(\d+)/i)?.[1] || "0", 10);
+      return numeroPrimero - numeroSegundo || primero.localeCompare(segundo, "es");
+    });
+    llenarGrupo(filtroGrupoNombre, grupos, "Selecciona un grupo y programa", !nivel);
+    document.getElementById("btnConsultarGrupo").disabled = true;
+  }
+
+  function mismoSemestre(registro, semestre) {
+    return valorGrupo(registro, "SEMESTRE_ACADEMICO") === semestre || valorGrupo(registro, "SEMESTRE") === semestre;
+  }
+
+  function consultarGrupo() {
+    const miembros = registrosGrupo().filter(function (registro) {
+      return mismoSemestre(registro, filtroGrupoSemestre.value)
+        && valorGrupo(registro, "NIVEL") === filtroGrupoNivel.value
+        && nombreGrupoDesdeRegistro(registro) === filtroGrupoNombre.value;
+    });
+    if (!miembros.length) return;
+    const fuentes = new Set(miembros.map(function (registro) {
+      return valorGrupo(registro, "ID_ARCHIVO") + "|" + valorGrupo(registro, "ID_HOJA");
+    }));
+    const notasGrupo = notas.filter(function (nota) {
+      return fuentes.has(valorGrupo(nota, "ID_ARCHIVO") + "|" + valorGrupo(nota, "ID_HOJA"));
+    });
+    const observacionesGrupo = observaciones.filter(function (observacion) {
+      return fuentes.has(valorGrupo(observacion, "ID_ARCHIVO") + "|" + valorGrupo(observacion, "ID_HOJA"));
+    });
+    renderizarGrupo(miembros[0], miembros, notasGrupo, observacionesGrupo);
+  }
+
+  function renderizarGrupo(grupo, miembros, notasGrupo, observacionesGrupo) {
+    const estudiantesGrupo = agruparEstudiantes(miembros).sort(function (a, b) { return a.nombre.localeCompare(b.nombre, "es"); });
+    const materias = [...new Map(notasGrupo.map(function (nota) {
+      return [String(nota.ASIGNATURA || "Sin asignatura"), nota];
+    })).values()];
+    document.getElementById("resumenGrupo").innerHTML = `<div><span class="eyebrow">Grupo seleccionado</span><h2>${escapar(grupo.NOMBRE_ARCHIVO || "Grupo académico")}</h2><p>${escapar([grupo.PROGRAMA, grupo.NIVEL, grupo.SEMESTRE_ACADEMICO || grupo.SEMESTRE].filter(Boolean).join(" · "))}</p></div><strong>${estudiantesGrupo.length} estudiantes</strong>`;
+    const encabezadoMaterias = materias.map(function (materia) { return `<th colspan="2">${escapar(materia.ASIGNATURA || "Sin asignatura")}</th>`; }).join("");
+    const subencabezadoMaterias = materias.map(function () { return "<th>Nota</th><th>Obs.</th>"; }).join("");
+    const filas = estudiantesGrupo.map(function (estudiante, indice) {
+      const registro = estudiante.registros[0] || {};
+      const notasEstudiante = notasGrupo.filter(function (nota) { return coincidePersona(nota, registro); });
+      const observacionesEstudiante = observacionesGrupo.filter(function (observacion) { return coincidePersona(observacion, registro); });
+      const celdas = materias.map(function (materia) {
+        const nota = notasEstudiante.find(function (item) { return item.ASIGNATURA === materia.ASIGNATURA && item.VALOR_ORIGINAL; })
+          || notasEstudiante.find(function (item) { return item.ASIGNATURA === materia.ASIGNATURA; });
+        const observacion = observacionesEstudiante.find(function (item) { return item.ASIGNATURA === materia.ASIGNATURA; });
+        const valorNota = nota && (nota.VALOR_ORIGINAL || nota.NOTA || nota.ESTADO_NOTA) ? (nota.VALOR_ORIGINAL || nota.NOTA || nota.ESTADO_NOTA) : "—";
+        return `<td class="group-grade">${escapar(valorNota)}</td><td>${observacion && observacion.OBSERVACION ? `<button class="observation-button" type="button" data-observacion="${escapar(JSON.stringify({ estudiante: estudiante.nombre, materia: materia.ASIGNATURA, docente: observacion.DOCENTE, texto: observacion.OBSERVACION }))}" title="Ver observación" aria-label="Ver observación">👁</button>` : "—"}</td>`;
+      }).join("");
+      const enlace = registro.ID_ARCHIVO ? `<a class="list-link" href="${generarEnlaceLista(registro.ID_ARCHIVO)}" target="_blank" rel="noopener noreferrer" title="Ir a la lista" aria-label="Ir a la lista">📋</a>` : "—";
+      return `<tr><td>${indice + 1}</td><td><strong>${escapar(estudiante.nombre)}</strong><small>${escapar(estudiante.documento || "Sin documento")}</small></td>${celdas}<td>${enlace}</td></tr>`;
+    }).join("");
+    document.getElementById("tablaGrupoWrap").innerHTML = `<table class="group-table"><thead><tr><th rowspan="2">N.º</th><th rowspan="2">Nombre</th>${encabezadoMaterias}<th rowspan="2">Acciones</th></tr><tr>${subencabezadoMaterias}</tr></thead><tbody>${filas || `<tr><td colspan="${3 + materias.length * 2}">No hay estudiantes para este grupo.</td></tr>`}</tbody></table>`;
+    resultadoGrupo.hidden = false;
+    activarScrollHorizontal();
+    resultadoGrupo.querySelectorAll(".observation-button").forEach(function (boton) {
+      boton.addEventListener("click", function () { abrirObservacion(JSON.parse(boton.dataset.observacion)); });
+    });
+  }
+
+  function activarScrollHorizontal() {
+    const contenedor = document.getElementById("tablaGrupoWrap");
+    if (contenedor.dataset.scrollActivo) return;
+    contenedor.dataset.scrollActivo = "true";
+    contenedor.addEventListener("wheel", function (evento) {
+      if (contenedor.scrollWidth <= contenedor.clientWidth) return;
+      if (Math.abs(evento.deltaY) <= Math.abs(evento.deltaX)) return;
+      contenedor.scrollLeft += evento.deltaY;
+      evento.preventDefault();
+    }, { passive: false });
+  }
+
+  function limpiarGrupo() {
+    filtroGrupoSemestre.value = "";
+    filtroGrupoNivel.value = "";
+    filtroGrupoNombre.value = "";
+    poblarFiltrosGrupo();
+    resultadoGrupo.hidden = true;
+  }
+
+  function abrirObservacion(datos) {
+    document.getElementById("tituloObservacion").textContent = datos.materia || "Observación";
+    document.getElementById("contenidoObservacion").innerHTML = `<p><strong>Estudiante:</strong> ${escapar(datos.estudiante)}</p><p><strong>Docente:</strong> ${escapar(datos.docente || "Información no disponible")}</p><p class="observation-modal-text">${escapar(datos.texto)}</p>`;
+    document.getElementById("modalObservacion").hidden = false;
+  }
+
+  function cerrarObservacion() {
+    document.getElementById("modalObservacion").hidden = true;
   }
 
   function cerrarSesion() {

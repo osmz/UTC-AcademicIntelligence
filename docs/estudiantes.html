@@ -21,7 +21,22 @@
       </div>
     </header>
 
-    <section class="student-search" aria-label="Buscar estudiante">
+    <section class="student-mode-picker" aria-label="Tipo de consulta">
+      <article class="student-mode-card student-mode-card-individual" data-modo="individual" tabindex="0" role="button">
+        <span class="student-mode-icon" aria-hidden="true">👤</span>
+        <span class="section-label">Consulta individual</span>
+        <h2>Encuentra un estudiante</h2>
+        <p>Consulta la información individual e histórico académico de un estudiante.</p>
+      </article>
+      <article class="student-mode-card student-mode-card-group" data-modo="grupo" tabindex="0" role="button">
+        <span class="student-mode-icon" aria-hidden="true">👥</span>
+        <span class="section-label">Seguimiento colectivo</span>
+        <h2>Encuentra grupo</h2>
+        <p>Consulta estudiantes, materias, notas y observaciones de un grupo.</p>
+      </article>
+    </section>
+
+    <section id="consultaIndividual" class="student-search" aria-label="Buscar estudiante" hidden>
       <div class="search-copy">
         <span class="section-label">Directorio académico</span>
         <h2>Encuentra un estudiante</h2>
@@ -36,12 +51,44 @@
         <label>Estado<select id="filtroEstado"><option value="">Todos los estados</option></select></label>
         <label>Asignatura<select id="filtroAsignatura"><option value="">Todas las asignaturas</option></select></label>
         <label>Docente<select id="filtroDocente"><option value="">Todos los docentes</option></select></label>
-        <div class="filter-actions">
-          <button id="btnBuscarEstudiante" type="button">Buscar</button>
+        <div class="filter-actions student-filter-actions">
+          <button id="btnBuscarEstudiante" type="button">Buscar estudiante</button>
           <button id="btnLimpiarEstudiante" class="btn-limpiar" type="button">Limpiar</button>
         </div>
       </div>
     </section>
+
+    <section id="consultaGrupo" class="group-search" aria-label="Buscar grupo" hidden>
+      <div class="search-copy">
+        <span class="section-label">Seguimiento colectivo</span>
+        <h2>Encuentra grupo</h2>
+        <p>Selecciona el contexto académico en orden para consultar el grupo.</p>
+      </div>
+      <div class="group-filter-grid">
+        <label>Semestre<select id="filtroGrupoSemestre"><option value="">Selecciona un semestre</option></select></label>
+        <label>Nivel<select id="filtroGrupoNivel" disabled><option value="">Selecciona un nivel</option></select></label>
+        <label>Grupo y programa<select id="filtroGrupoNombre" disabled><option value="">Selecciona un grupo y programa</option></select></label>
+        <div class="group-filter-actions">
+          <button id="btnConsultarGrupo" type="button" disabled>Consultar grupo</button>
+          <button id="btnLimpiarGrupo" class="btn-limpiar" type="button">Limpiar</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="resultadoGrupo" class="group-result data-panel" hidden>
+      <div id="resumenGrupo" class="group-result-summary"></div>
+      <div id="tablaGrupoWrap" class="group-table-wrap"></div>
+    </section>
+
+    <div id="modalObservacion" class="observation-modal" hidden>
+      <div class="observation-modal-backdrop" data-cerrar-observacion></div>
+      <section class="observation-modal-card" role="dialog" aria-modal="true" aria-labelledby="tituloObservacion">
+        <button id="btnCerrarObservacion" class="observation-modal-close" type="button" aria-label="Cerrar observación">×</button>
+        <span class="section-label">Detalle de seguimiento</span>
+        <h2 id="tituloObservacion">Observación</h2>
+        <div id="contenidoObservacion"></div>
+      </section>
+    </div>
 
     <div id="estadoDatosEstudiante" class="data-notice" hidden></div>
     <div id="errorEstudiante" class="error"></div>

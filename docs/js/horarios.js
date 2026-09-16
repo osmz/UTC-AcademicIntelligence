@@ -88,6 +88,19 @@ function renderizarHorario(registros) {
   }
   const grupos = agruparPorGrupo(registros);
   tabla.innerHTML = `<table class="schedule-table"><thead><tr><th class="group-number-heading">N.º</th><th>Información del grupo</th><th class="campus-heading">Sede</th>${DIAS_HORARIO.map(dia => `<th>${abreviarDia(dia)}</th>`).join("")}</tr></thead><tbody>${grupos.map((grupo, indice) => `<tr><th class="group-number">${numeroGrupo(grupo.registros[0], indice + 1)}</th><td class="group-information">${informacionGrupo(grupo.registros)}</td><td class="group-campus">${escapeHtml(grupo.registros[0].SEDE || "—")}</td>${DIAS_HORARIO.map(dia => `<td class="day-cell">${tarjetasDelDia(grupo.registros.filter(registro => registro.DIA === dia)) || '<span class="empty-slot">—</span>'}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
+  activarScrollHorizontalHorario();
+}
+
+function activarScrollHorizontalHorario() {
+  const contenedor = document.getElementById("tablaHorario");
+  if (contenedor.dataset.scrollActivo) return;
+  contenedor.dataset.scrollActivo = "true";
+  contenedor.addEventListener("wheel", function (evento) {
+    if (contenedor.scrollWidth <= contenedor.clientWidth) return;
+    if (Math.abs(evento.deltaY) <= Math.abs(evento.deltaX)) return;
+    contenedor.scrollLeft += evento.deltaY;
+    evento.preventDefault();
+  }, { passive: false });
 }
 
 function agruparPorGrupo(registros) {
